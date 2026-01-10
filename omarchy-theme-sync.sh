@@ -15,9 +15,8 @@ load_colors() {
     if [[ -f "$THEME_DIR/theme.name" ]]; then
         THEME_NAME=$(tr -d '[:space:]' < "$THEME_DIR/theme.name")
 
-        # Expected layout: current/colors.toml
-        if [[ -f "$THEME_DIR/colors.toml" ]]; then
-            COLORS_FILE="$THEME_DIR/colors.toml"
+        if [[ -f "$THEME_DIR/theme/colors.toml" ]]; then
+            COLORS_FILE="$THEME_DIR/theme/colors.toml"
         fi
     fi
 
@@ -92,7 +91,7 @@ watch_theme() {
 
     inotifywait -m \
         -e close_write,moved_to,create \
-        "$THEME_DIR/theme.name" |
+        "$THEME_DIR/theme.name" "$SYNC_DIR/config"|
     while read -r _ _ _; do
         echo "Theme change detected. Syncing..."
         load_colors
