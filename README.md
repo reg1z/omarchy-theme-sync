@@ -23,6 +23,19 @@ This script watches your current Omarchy theme for changes and dynamically repla
 * Each app folder in `.config/` must have a `dir` file specifying the destination path.
 * Placeholders like `${foreground}` in the configuration files will be replaced with the actual values from `colors.toml`.
 
+### Example config
+```
+~/.config/omarchy-theme-sync/config/zen-cal/dir
+    $HOME/.config/zen-cal
+~/.config/omarchy-theme-sync/config/zen-cal/zen-cal.conf
+    # Zen-Cal color configuration
+    today    = ${selection_background}
+    headings = ${accent}
+    text     = ${foreground}
+    weekends = ${color2}
+```
+
+
 ## Usage
 
 ### Installation
