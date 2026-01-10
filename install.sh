@@ -13,3 +13,4 @@ cp ./config "$SYNC_DIR/config" -r
 
 cp ./omarchy-theme-sync.service "$HOME/.config/systemd/user/"
 systemctl --user daemon-reload
+systemctl --user enable --now omarchy-theme-sync.service
