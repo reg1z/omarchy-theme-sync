@@ -5,3 +5,6 @@ Automatically updates your configuration files when your **Omarchy theme** chang
 * When a theme changes, it replaces placeholders in the files under `~/.config/omarchy-theme-sync/.config/` with actual color values and copies them to `~/.config/`.
 
 > Note : in `~/.config/omarchy-theme-sync/.config/` colors indicated with  `${var_name}` will be replaced with actual `var_name` from `colors.toml`
+
+## Requirements
+- `inotify-tools`
