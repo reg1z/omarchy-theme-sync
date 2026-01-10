@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 CONFIG_DIR="$HOME/.config"
-THEME_DIR="$CONFIG_DIR/omarchy/current/theme"
+THEME_DIR="$CONFIG_DIR/omarchy/current/"
 SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
 
 # Default colors
