@@ -1,0 +1,1 @@
+# omarchy-theme-sync-ctl
