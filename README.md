@@ -50,15 +50,7 @@ This script will:
   ```
 * Copy the main script, color themes, and configuration templates into `~/.config/omarchy-theme-sync/`.
 * Install the systemd service file at `~/.config/systemd/user/`.
-* Reload user systemd units.
-
-2. **Enable and start the service**
-
-```bash
-systemctl --user enable --now omarchy-theme-sync.service
-```
-
-* This will start the theme sync daemon automatically in the background.
+* Reload user systemd units and will start the theme sync daemon automatically in the background.
 * It will watch for changes in `~/.config/omarchy/current/theme/` and automatically update your app configurations.
 
 ---
