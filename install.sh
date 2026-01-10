@@ -8,8 +8,8 @@ mkdir "$SYNC_DIR/colors/" -p
 
 chmod +x ./omarchy-theme-sync.sh
 cp ./omarchy-theme-sync.sh "$SYNC_DIR/"
-cp ./colors "$SYNC_DIR/colors" -r
-cp ./config "$SYNC_DIR/config" -r
+cp ./colors "$SYNC_DIR" -r
+cp ./config "$SYNC_DIR" -r
 
 cp ./omarchy-theme-sync.service "$HOME/.config/systemd/user/"
 systemctl --user daemon-reload
