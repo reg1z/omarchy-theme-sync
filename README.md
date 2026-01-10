@@ -4,13 +4,9 @@
 
 This script watches your current Omarchy theme for changes and dynamically replaces color placeholders in your configuration files with the actual values from the theme.
 
-
-## Features
-
 * Watches `~/.config/omarchy/current/theme/` for updates.
 * Replaces `${var_name}` placeholders in your app configuration files with the corresponding values from `colors.toml`.
 * Copies the processed configuration files to the destination specified in each app’s `dir` file.
-* Supports multiple apps and configuration directories.
 
 ## Directory Structure
 
@@ -36,20 +32,44 @@ This script watches your current Omarchy theme for changes and dynamically repla
 
 ## Usage
 
-1. **Ensure your directories are set up correctly**
-   Each app configuration folder should include a `dir` file specifying the destination directory.
+### Installation
 
-2. **Run the script**
+1. **Run the installer**
 
 ```bash
-./omarchy-theme-sync.sh
+chmod +x ./install.sh
+./install.sh
 ```
 
-The script will start watching `~/.config/omarchy/current/theme/` for changes. When a change is detected:
+This script will:
 
-* The latest colors are loaded from `colors.toml`.
-* Placeholders in your configuration files are replaced with actual color values.
-* Processed files are copied to the destination specified in the `dir` file.
+* Create necessary directories:
+  ```
+  ~/.config/omarchy-theme-sync/config/
+  ~/.config/omarchy-theme-sync/colors/
+  ```
+* Copy the main script, color themes, and configuration templates into `~/.config/omarchy-theme-sync/`.
+* Install the systemd service file at `~/.config/systemd/user/`.
+* Reload user systemd units.
+
+2. **Enable and start the service**
+
+```bash
+systemctl --user enable --now omarchy-theme-sync.service
+```
+
+* This will start the theme sync daemon automatically in the background.
+* It will watch for changes in `~/.config/omarchy/current/theme/` and automatically update your app configurations.
+
+---
+
+### Uninstallation
+
+```bash
+chmod +x ./uninstall.sh
+./uninstall.sh
+```
+* This should stop the running daemon and remove the systemd service file.
 
 ## How It Works
 
