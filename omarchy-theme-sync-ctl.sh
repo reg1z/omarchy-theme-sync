@@ -29,27 +29,45 @@ load_colors() {
 # Replace variables in files
 replace_vars() {
     local src="$1"
-    local dst="$2"
-    local tmp
-    tmp=$(mktemp -d)
 
-    # copy source config to temporary directory
-    cp -r "$src"/. "$tmp"/
+    # Iterate over subdirectories only
+    for sub in "$src"/*/; do
+        # If not a directory skip the file
+        [[ -d "$sub" ]] || continue
 
-    # find all placeholders recursively in tmp
-    while IFS= read -r var; do
-        # get the value from colors.toml
-        value=$(grep "^$var\s*=" "$COLORS_FILE" | cut -d'=' -f2 | tr -d ' "')
-        [[ -n "$value" ]] && \
-        # replace in all files recursively in tmp
-        find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
-    done < <(grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u)
+        # Read destination from 'dir' file inside the subdirectory
+        local dest
+        if [[ -f "$sub/dir" ]]; then
+            dest=$(<"$sub/dir")
+            [[ -d "$dest" ]] || { echo "Destination $dest does not exist, skipping $sub"; continue; }
+        else
+            echo "No dir file in $sub, skipping..."
+            continue
+        fi
 
-    # move the updated temp folder to destination
-    mv "$tmp"/* "$dst"/
+        # Use a temporary folder for processing
+        local tmp
+        tmp=$(mktemp -d)
 
-    # clean up temp
-    rm -rf "$tmp"
+        # Copy subdirectory contents to temp (excluding the dir file)
+        rsync -a --exclude 'dir' "$sub" "$tmp/"
+
+        # Find all placeholders recursively in temp
+        while IFS= read -r var; do
+            # Get value from colors.toml
+            local value
+            value=$(grep "^$var\s*=" "$COLORS_FILE" | cut -d'=' -f2 | tr -d ' "')
+            [[ -n "$value" ]] && \
+            # Replace in all files recursively in temp
+            find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
+        done < <(grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u)
+
+        # Move processed files to the existing destination
+        mv "$tmp"/* "$dest"/
+
+        # Clean temp
+        rm -rf "$tmp"
+    done
 }
 
 
@@ -59,7 +77,7 @@ watch_theme() {
     while read -r directory events filename; do
         echo "Detected theme change: $filename"
         load_colors
-        replace_vars "$SYNC_DIR/.config" "$CONFIG_DIR"
+        replace_vars "$SYNC_DIR/config/"
     done
 }
 
