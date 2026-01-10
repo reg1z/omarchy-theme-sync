@@ -5,7 +5,15 @@ SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
 
 rm -rf "$SYNC_DIR"
 
+systemctl --user stop omarchy-theme-sync.path
 systemctl --user stop omarchy-theme-sync.service
+
+systemctl --user disable omarchy-theme-sync.path
 systemctl --user disable omarchy-theme-sync.service
 
+
 rm "$HOME/.config/systemd/user/omarchy-theme-sync.service"
+rm "$HOME/.config/systemd/user/omarchy-theme-sync.path"
+
+
+systemctl --user daemon-reload

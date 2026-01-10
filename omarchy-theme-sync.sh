@@ -43,7 +43,7 @@ load_colors() {
 }
 
 replace_vars() {
-    local src="${1%/}"
+    local src="$SYNC_DIR/config"
 
     find "$src" -mindepth 1 -maxdepth 1 -type d | while read -r sub; do
         if [[ ! -f "$sub/dir" ]]; then
@@ -85,20 +85,6 @@ replace_vars() {
     done
 }
 
-
-watch_theme() {
-    echo "Watching $THEME_DIR/theme.name for changes..."
-
-    inotifywait -m \
-        -e close_write,moved_to,create \
-        "$THEME_DIR/theme.name" "$SYNC_DIR/config"|
-    while read -r _ _ _; do
-        echo "Theme change detected. Syncing..."
-        load_colors
-        replace_vars "$SYNC_DIR/config"
-    done
-}
-
+echo "Theme change detected. Syncing..."
 load_colors
-replace_vars "$SYNC_DIR/config"
-watch_theme
+replace_vars 

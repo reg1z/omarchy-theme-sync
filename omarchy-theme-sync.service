@@ -1,15 +1,10 @@
 [Unit]
-Description=Omarchy Theme Sync
+Description=Sync Omarchy Theme
 After=graphical.target
 
 [Service]
-Type=simple
+Type=oneshot
 ExecStart=%h/.config/omarchy-theme-sync/omarchy-theme-sync.sh
-Restart=on-failure
-RestartSec=5
 WorkingDirectory=%h
 StandardOutput=journal
 StandardError=journal
-
-[Install]
-WantedBy=default.target

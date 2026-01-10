@@ -12,5 +12,7 @@ cp ./colors "$SYNC_DIR" -r
 cp ./config "$SYNC_DIR" -r
 
 cp ./omarchy-theme-sync.service "$HOME/.config/systemd/user/"
+cp ./omarchy-theme-sync.path "$HOME/.config/systemd/user/"
+
 systemctl --user daemon-reload
-systemctl --user enable --now omarchy-theme-sync.service
+systemctl --user enable --now omarchy-theme-sync.path
