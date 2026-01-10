@@ -23,13 +23,6 @@ This script watches your current Omarchy theme for changes and dynamically repla
 * Each app folder in `.config/` must have a `dir` file specifying the destination path.
 * Placeholders like `${foreground}` in the configuration files will be replaced with the actual values from `colors.toml`.
 
-## Requirements
-
-* `bash`
-* `inotify-tools` (for monitoring file changes)
-* `rsync`, `grep`, `sed` (common GNU utilities)
-
-
 ## Usage
 
 ### Installation
