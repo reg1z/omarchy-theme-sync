@@ -1,85 +1,105 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 CONFIG_DIR="$HOME/.config"
-THEME_DIR="$CONFIG_DIR/omarchy/current/"
+THEME_DIR="$CONFIG_DIR/omarchy/current"
 SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
+THEME_STORE="$HOME/.local/share/omarchy/themes"
 
-# Default colors
-get_default_colors() {
-    mode=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || echo "'prefer-light'")
-    if [[ $mode == "'prefer-dark'" ]]; then
-        COLORS="catpuccin-mocha"
-    else
-        COLORS="catpuccin-latte"
-    fi
-    echo "$COLORS"
-}
+COLORS_FILE=""
 
-# Load colors.toml
 load_colors() {
-    if [[ -f "$THEME_DIR/colors.toml" ]]; then
-        COLORS_FILE="$THEME_DIR/colors.toml"
-    else
-        echo "No colors.toml found, using default"
-        DEFAULT=$(get_default_colors)
+    COLORS_FILE=""
+
+    # Identify current theme
+    if [[ -f "$THEME_DIR/theme.name" ]]; then
+        THEME_NAME=$(tr -d '[:space:]' < "$THEME_DIR/theme.name")
+
+        # Expected layout: current/colors.toml
+        if [[ -f "$THEME_DIR/colors.toml" ]]; then
+            COLORS_FILE="$THEME_DIR/colors.toml"
+        fi
+    fi
+
+    # Fallback to system default
+    if [[ -z "$COLORS_FILE" || ! -f "$COLORS_FILE" ]]; then
+        echo "Theme colors not found, using system default..."
+
+        mode=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || echo "'prefer-light'")
+        if [[ $mode == "'prefer-dark'" ]]; then
+            DEFAULT="catppuccin-mocha"
+        else
+            DEFAULT="catppuccin-latte"
+        fi
+
         COLORS_FILE="$SYNC_DIR/colors/$DEFAULT/colors.toml"
     fi
+
+    if [[ ! -f "$COLORS_FILE" ]]; then
+        echo "ERROR: colors.toml not found: $COLORS_FILE" >&2
+        exit 1
+    fi
+
+    echo "Using colors from: $COLORS_FILE"
 }
 
-# Replace variables in files
 replace_vars() {
-    local src="$1"
+    local src="${1%/}"
 
-    # Iterate over subdirectories only
-    for sub in "$src"/*/; do
-        # If not a directory skip the file
-        [[ -d "$sub" ]] || continue
-
-        # Read destination from 'dir' file inside the subdirectory
-        local dest
-        if [[ -f "$sub/dir" ]]; then
-            dest=$(<"$sub/dir")
-            [[ -d "$dest" ]] || { echo "Destination $dest does not exist, skipping $sub"; continue; }
-        else
+    find "$src" -mindepth 1 -maxdepth 1 -type d | while read -r sub; do
+        if [[ ! -f "$sub/dir" ]]; then
             echo "No dir file in $sub, skipping..."
             continue
         fi
 
-        # Use a temporary folder for processing
-        local tmp
+        raw_dest=$(tr -d '\r\n' < "$sub/dir")
+
+        if [[ -z "$raw_dest" ]]; then
+            echo "Empty dir file in $sub, skipping..."
+            continue
+        fi
+
+        dest=$(eval echo "$raw_dest")
+        mkdir -p "$dest"
+
         tmp=$(mktemp -d)
 
-        # Copy subdirectory contents to temp (excluding the dir file)
-        rsync -a --exclude 'dir' "$sub" "$tmp/"
+        # Copy config templates (exclude dir)
+        cp -a "$sub"/. "$tmp/"
+        rm -f "$tmp/dir"
 
-        # Find all placeholders recursively in temp
-        while IFS= read -r var; do
-            # Get value from colors.toml
-            local value
-            value=$(grep "^$var\s*=" "$COLORS_FILE" | cut -d'=' -f2 | tr -d ' "')
-            [[ -n "$value" ]] && \
-            # Replace in all files recursively in temp
-            find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
-        done < <(grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u)
 
-        # Move processed files to the existing destination
-        mv "$tmp"/* "$dest"/
+        # Extract placeholders and replace
+        grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u | while read -r var; do
+            value=$(grep -E "^$var\s*=" "$COLORS_FILE" \
+                | cut -d'=' -f2- \
+                | tr -d ' "')
 
-        # Clean temp
+            if [[ -n "$value" ]]; then
+                find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
+            fi
+        done
+
+        # Copy into destination (destination must already exist)
+        cp -af "$tmp"/. "$dest/"
         rm -rf "$tmp"
     done
 }
 
 
-# Watch for changes
 watch_theme() {
-    inotifywait -m -e close_write,moved_to,create "$THEME_DIR" |
-    while read -r directory events filename; do
-        echo "Detected theme change: $filename"
+    echo "Watching $THEME_DIR/theme.name for changes..."
+
+    inotifywait -m \
+        -e close_write,moved_to,create \
+        "$THEME_DIR/theme.name" |
+    while read -r _ _ _; do
+        echo "Theme change detected. Syncing..."
         load_colors
-        replace_vars "$SYNC_DIR/config/"
+        replace_vars "$SYNC_DIR/config"
     done
 }
 
-# Start watching
+load_colors
+replace_vars "$SYNC_DIR/config"
 watch_theme
