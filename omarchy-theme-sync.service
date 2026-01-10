@@ -1,0 +1,17 @@
+[Unit]
+Description=Omarchy Theme Sync
+After=graphical.target
+
+[Service]
+Type=simple
+User=%i
+Environment=HOME=%h
+ExecStart=/home/%i/.config/omarchy-theme-sync/omarchy-theme-sync.sh
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+WorkingDirectory=/home/%i
+
+[Install]
+WantedBy=default.target
