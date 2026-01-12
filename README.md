@@ -13,26 +13,27 @@ This script watches your current Omarchy theme for changes and dynamically repla
 ```
 ~/.config/omarchy/current/theme/        # Active theme folder
 ~/.config/omarchy-theme-sync/
-└─ config/
-   └─ <app_name>/
-      ├─ <config_files>                # Files with ${var_name} placeholders
-      └─ dir                            # File containing the actual destination path
+└─ <app_name>/
+    ├─ <config_files>                # Files with ${var_name} placeholders
+    └─ dir                           # File containing the actual destination path
 ```
 
 * `colors.toml` contains the theme variables (e.g., `foreground = "#a9b1d6"`).
-* Each app folder in `.config/` must have a `dir` file specifying the destination path.
+* Each app folder in `~/.config/omarchy-theme-sync/
+` must have a `dir` file specifying the destination path.
 * Placeholders like `${foreground}` in the configuration files will be replaced with the actual values from `colors.toml`.
 
 ### Example config
 ```
-~/.config/omarchy-theme-sync/config/zen-cal/dir
+~/.config/omarchy-theme-sync/zen-cal/dir
     $HOME/.config/zen-cal
-~/.config/omarchy-theme-sync/config/zen-cal/zen-cal.conf
+~/.config/omarchy-theme-sync/zen-cal/zen-cal.conf
     # Zen-Cal color configuration
-    today    = ${selection_background}
-    headings = ${accent}
-    text     = ${foreground}
-    weekends = ${color2}
+    today      = ${selection_background}
+    today_text = ${selection_foreground}
+    headings   = ${accent}
+    text       = ${foreground}
+    weekends   = ${color2}
 ```
 
 
@@ -47,19 +48,6 @@ chmod +x ./install.sh
 ./install.sh
 ```
 
-This script will:
-
-* Create necessary directories:
-  ```
-  ~/.config/omarchy-theme-sync/config/
-  ~/.config/omarchy-theme-sync/colors/
-  ```
-* Copy the main script, color themes, and configuration templates into `~/.config/omarchy-theme-sync/`.
-* Install the systemd service file at `~/.config/systemd/user/`.
-* Reload user systemd units and will start the theme sync daemon automatically in the background.
-* It will watch for changes in `~/.config/omarchy/current/theme/` and automatically update your app configurations.
-
----
 
 ### Uninstallation
 
@@ -67,12 +55,11 @@ This script will:
 chmod +x ./uninstall.sh
 ./uninstall.sh
 ```
-* This should stop the running daemon and remove the systemd service file.
 
 ## How It Works
 
 1. Detects the active color scheme (`catppuccin-latte` for light or `catppuccin-mocha` for dark) if `colors.toml` is missing.
-2. Iterates over all subdirectories in the sync folder (`~/.config/omarchy-theme-sync/.config/`).
+2. Iterates over all subdirectories in the sync folder (`~/.config/omarchy-theme-sync/`).
 3. Uses a temporary directory for processing to avoid overwriting files during replacement.
 4. Recursively replaces all `${var_name}` placeholders with values from `colors.toml`.
 5. Moves the processed files to the existing destination directory specified in the `dir` file.
