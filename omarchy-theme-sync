@@ -59,7 +59,10 @@ replace_vars() {
         fi
 
         dest=$(eval echo "$raw_dest")
-        mkdir -p "$dest"
+        if [[ ! -d "$dest"]]; then
+          echo "$dest not found skipping"
+          continue
+        fi
 
         tmp=$(mktemp -d)
 
@@ -78,7 +81,8 @@ replace_vars() {
                 find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
             fi
         done
-        # Copy into destination (destination must already exist)
+
+        # Copy into destination
         cp -af "$tmp"/. "$dest/"
         rm -rf "$tmp"
     done
