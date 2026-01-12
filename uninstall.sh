@@ -2,18 +2,24 @@
 
 CONFIG_DIR="$HOME/.config"
 SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
+OMARCHY_HOOKS_DIR="$CONFIG_DIR/omarchy/hooks"
+OMARCHY_BIN_DIR="$HOME/.local/share/omarchy/bin"
 
+# Remove the main binary
+rm -f "$OMARCHY_BIN_DIR/omarchy-theme-sync"
+
+# Remove sync directory
 rm -rf "$SYNC_DIR"
 
-systemctl --user stop omarchy-theme-sync.path
-systemctl --user stop omarchy-theme-sync.service
+# Remove line from theme-set hook if present
+if [[ -f "$OMARCHY_HOOKS_DIR/theme-set" ]]; then
+    sed -i '/^omarchy-theme-sync$/d' "$OMARCHY_HOOKS_DIR/theme-set"
+    
+    # If hook is now empty, remove it
+    if [[ ! -s "$OMARCHY_HOOKS_DIR/theme-set" ]]; then
+        rm -f "$OMARCHY_HOOKS_DIR/theme-set"
+    fi
+fi
 
-systemctl --user disable omarchy-theme-sync.path
-systemctl --user disable omarchy-theme-sync.service
+echo "Uninstallation complete!"
 
-
-rm "$HOME/.config/systemd/user/omarchy-theme-sync.service"
-rm "$HOME/.config/systemd/user/omarchy-theme-sync.path"
-
-
-systemctl --user daemon-reload

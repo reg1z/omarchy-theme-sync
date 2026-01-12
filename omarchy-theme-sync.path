@@ -1,9 +1,0 @@
-[Unit]
-Description=Watch Omarchy theme changes
-
-[Path]
-PathModified=%h/.config/omarchy/current/theme.name
-Unit=omarchy-theme-sync.service
-
-[Install]
-WantedBy=default.target

@@ -2,17 +2,34 @@
 
 CONFIG_DIR="$HOME/.config"
 SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
+OMARCHY_HOOKS_DIR="$CONFIG_DIR/omarchy/hooks"
+OMARCHY_BIN_DIR="$HOME/.local/share/omarchy/bin"
 
-mkdir "$SYNC_DIR/config/" -p
-mkdir "$SYNC_DIR/colors/" -p
+# Ensure directories exist
+mkdir -p "$SYNC_DIR" "$OMARCHY_HOOKS_DIR" "$OMARCHY_BIN_DIR"
 
-chmod +x ./omarchy-theme-sync.sh
-cp ./omarchy-theme-sync.sh "$SYNC_DIR/"
-cp ./colors "$SYNC_DIR" -r
-cp ./config "$SYNC_DIR" -r
+# Make the main script executable and copy to bin
+chmod +x ./omarchy-theme-sync
+cp ./omarchy-theme-sync "$OMARCHY_BIN_DIR/"
 
-cp ./omarchy-theme-sync.service "$HOME/.config/systemd/user/"
-cp ./omarchy-theme-sync.path "$HOME/.config/systemd/user/"
+# Handle theme-set hook
+if [[ -f "$OMARCHY_HOOKS_DIR/theme-set.sample" ]]; then
+    mv "$OMARCHY_HOOKS_DIR/theme-set.sample" "$OMARCHY_HOOKS_DIR/theme-set"
+fi
 
-systemctl --user daemon-reload
-systemctl --user enable --now omarchy-theme-sync.path
+if [[ ! -f "$OMARCHY_HOOKS_DIR/theme-set" ]]; then
+    touch "$OMARCHY_HOOKS_DIR/theme-set"
+    echo "#!/usr/bin/env bash" >> "$OMARCHY_HOOKS_DIR/theme-set"
+fi
+
+chmod +x "$OMARCHY_HOOKS_DIR/theme-set"
+
+# Append the command if it's not already in the file
+grep -qxF "omarchy-theme-sync" "$OMARCHY_HOOKS_DIR/theme-set" || \
+    echo "omarchy-theme-sync" >> "$OMARCHY_HOOKS_DIR/theme-set"
+
+# Copy colors and config files
+cp ./colors/* "$SYNC_DIR/"
+cp -r ./config/* "$SYNC_DIR/"
+
+echo "Installation complete!"

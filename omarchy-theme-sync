@@ -43,7 +43,7 @@ load_colors() {
 }
 
 replace_vars() {
-    local src="$SYNC_DIR/config"
+    local src="$SYNC_DIR"
 
     find "$src" -mindepth 1 -maxdepth 1 -type d | while read -r sub; do
         if [[ ! -f "$sub/dir" ]]; then
@@ -67,7 +67,7 @@ replace_vars() {
         cp -a "$sub"/. "$tmp/"
         rm -f "$tmp/dir"
 
-
+        echo "replacing $sub to $dest"
         # Extract placeholders and replace
         grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u | while read -r var; do
             value=$(grep -E "^$var\s*=" "$COLORS_FILE" \
@@ -78,7 +78,6 @@ replace_vars() {
                 find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
             fi
         done
-
         # Copy into destination (destination must already exist)
         cp -af "$tmp"/. "$dest/"
         rm -rf "$tmp"
