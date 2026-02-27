@@ -4,6 +4,8 @@ Many thanks to [beaterblank](https://github.com/beaterblank) for [making omarchy
 
 All you have to do is run `install.sh`. Themes should sync any time you change omarchy's theme. Firefox must be restarted for the change to take effect.
 
+![demo_firefox_omarchy_theme.gif](https://raw.githubusercontent.com/reg1z/media-assets/refs/heads/main/omarchy-theme-sync/demo_firefox_omarchy_theme.gif)
+
 If it turns out you don't like it:
 - If you did not previously have a `user.js`, you can navigate to `.mozilla/firefox/<your_profile_folder>/user.js` and delete the file. This should remove settings overriding firefox's default `prefs.js`
 - Otherwise, manually rollback `user.js` by removing/updating the following settings the script adds/changes in this file:
