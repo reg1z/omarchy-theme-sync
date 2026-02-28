@@ -1,0 +1,20 @@
+/* blank new tab page */
+@-moz-document url("about:blank") {
+  html, body {
+    background-color: ${background} !important;
+  }
+}
+
+/* firefox new tab page */
+@-moz-document url("about:newtab") {
+  html, body {
+    background-color: ${background} !important;
+  }
+}
+
+/* firefox home page */
+@-moz-document url("about:home") {
+  html, body {
+    background-color: ${background} !important;
+  }
+}
