@@ -1,0 +1,250 @@
+/* userChrome.css */
+
+/***** Nav toolbar background *****/
+#nav-bar {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+#TabsToolbar-customization-target {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+.toolbarbutton-1 {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+/****** Bookmarks bar *****/
+#PersonalToolbar {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+#PersonalToolbar .bookmark-item:hover {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+  -moz-appearance: none !important;
+}
+
+#PersonalToolbar .bookmark-item[container="true"]:hover {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+  -moz-appearance: none !important;
+}
+
+#PersonalToolbar .bookmark-item[open="true"] {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+  -moz-appearance: none !important;
+}
+
+menupopup {
+  -moz-appearance: none !important;
+  background-color: ${background} !important;
+  --panel-background: ${background} !important;
+  --panel-border-color: ${accent} !important;
+  --panel-border-radius: 4px !important;
+}
+
+
+
+/* Tooltips */
+
+
+/***** Tabs *****/
+
+/* Tab bar */
+#tabbrowser-tabs {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+/* Active tab */
+.tabbrowser-tab[selected="true"] .tab-background {
+  background-color: ${accent} !important;
+  color: ${accent} !important;
+}
+
+.tabbrowser-tab[selected="true"] .tab-text{
+  color: ${selection_foreground} !important;
+}
+
+.tabbrowser-tab[selected="true"]:hover .tab-background {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+.tabbrowser-tab[selected="true"]:hover .tab-text {
+  color: ${selection_foreground} !important;
+}
+
+/* Inactive tabs on hover */
+.tabbrowser-tab:hover .tab-background {
+  background-color: ${accent} !important;
+}
+
+.tabbrowser-tab:hover {
+  color: ${selection_foreground} !important;
+}
+
+/* Titlebar Spacer */
+.titlebar-spacer {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+
+.titlebar-button {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+.titlebar-close .toolbarbutton-icon {
+  background-color: ${color1} !important;
+}
+
+/**** Toolbar buttons - hover colors ****/
+toolbarbutton:hover .toolbarbutton-icon {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+toolbarbutton[aria-pressed="true"] .toolbarbutton-icon {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+toolbarbutton:hover .toolbarbutton-badge-stack {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+toolbarbutton[open="true"] .toolbarbutton-badge-stack {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+/*********************** URL bar ************************/
+
+.urlbar-background {
+  background-color: ${background} !important;
+  border-color: ${color4} !important;
+  color: ${foreground} !important;
+}
+
+#urlbar-input {
+  color: ${foreground} !important;
+}
+
+#urlbar-input[focused="true"] {
+  color: ${foreground} !important;
+}
+
+/* unfocused placeholder */
+#urlbar-input::placeholder {
+  color: ${color2} !important;
+  opacity: 1 !important;
+}
+
+/* focused placeholder */
+#urlbar[focused="true"] #urlbar-input::placeholder {
+  color: ${color2} !important;
+  opacity: 1 !important;
+}
+
+/* focused / expanded */
+#urlbar[focused="true"] .urlbar-background,
+#urlbar[breakout] .urlbar-background,
+#urlbar[breakout][breakout-extend] .urlbar-background {
+  background-color: ${background} !important;
+  border-color: ${accent} !important;
+  color: ${foreground} !important;
+}
+
+/* URL bar suggestions */
+#urlbar-results {
+  background-color: ${background} !important;
+  border-color: ${color1} !important;
+  color: ${foreground} !important;
+}
+
+#urlbar .urlbarView {
+  background-color: ${background} !important;
+  border-color: ${color1} !important;
+  color: ${foreground} !important;
+}
+
+/* The results list container */
+.urlbarView-results {
+  background-color: ${background} !important;
+  border-color: ${color1} !important;
+  color: ${foreground} !important;
+}
+
+/* The inner body of the dropdown */
+.urlbarView-body-inner {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+/* Individual suggestion rows */
+.urlbarView-row {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+
+/* Selected/highlighted row */
+.urlbarView-row[selected] {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+/* Hovered row */
+.urlbarView-row:hover {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+/* Page title text in a row */
+.urlbarView-title {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* URL text in a row */
+.urlbarView-url {
+  color: ${color8} !important;
+}
+
+/* The action text (e.g. "Search with Google") */
+.urlbarView-row .urlbarView-action {
+  color: ${color7} !important;
+}
+
+}
+
+/* Selected or hovered row — title, url, and separator together */
+.urlbarView-row[selected] .urlbarView-title,
+.urlbarView-row:hover .urlbarView-title,
+.urlbarView-row[selected] .urlbarView-secondary,
+.urlbarView-row:hover .urlbarView-secondary {
+  background-color: ${accent} !important;
+  color: ${selection_foreground} !important;
+}
+
+
+/* end urlbar */
+
+#alltabs-button {
+  background-color: ${background} !important;
+}
+
+#urlbar-searchmode-switcher {
+  background-color: ${background} !important;
+}
+
+.searchmode-switcher {
+  background-color: ${background} !important;
+}
