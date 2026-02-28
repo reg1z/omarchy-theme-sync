@@ -9,9 +9,9 @@ All you have to do is run `install.sh`. Themes should sync any time you change o
 If it turns out you don't like it:
 - If you did not previously have a `user.js`, you can navigate to `.mozilla/firefox/<your_profile_folder>/user.js` and delete the file. This should remove settings overriding firefox's default `prefs.js`
 - Otherwise, manually rollback `user.js` by removing/updating the following settings the script adds/changes in this file:
-  1. `toolkit.legacyUserProfileCustomizations.stylesheets` -> enables
+  1. `toolkit.legacyUserProfileCustomizations.stylesheets` -> enables `userChrome.css` styling
   2. `extensions.activeThemeID` -> attempts to set current firefox theme back to default
-  3. `layout.css.prefers-color-scheme.content-override`
+  3. `layout.css.prefers-color-scheme.content-override` -> where supported, websites will set themselves to dark/light mode depending on your system
 
 ## ⭐IMPORTANT ⭐
 Make sure to switch firefox to its default theme WITH syncing of light/dark mode based on OS settings enabled. You can do this before or after installation.
