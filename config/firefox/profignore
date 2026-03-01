@@ -1,0 +1,29 @@
+#######################################
+############ PROFILE IGNORE ###########
+##
+## NOTE: CURRENTLY ONLY SUPPORTED
+##       FOR FIREFOX DERIVATIVES
+## 
+##
+## You can exclude individual browser profiles
+## from syncing here. One per line. As many assigned
+## you'd like
+##
+## Empty lines + lines beginning with "#" are ignored.
+##
+## Valid Definitions:
+## - regular name of the profile:
+##   - e.g.) default-release
+##
+## - expanded name with browser assigned prefix:
+##   - e.g.) kpwy5o34.default-release
+##
+## - OR an absolute path:
+##   - e.g.) ~/.mozilla/firefox/kpwy5o34.default-release
+##
+#### ( Examples commented below ) #####
+#######################################
+
+# WebApps
+# abc123.WebApps
+# ~/.mozilla/firefox/abc123.WebApps

@@ -71,30 +71,36 @@ sync_mozilla() {
         return
     fi
 
-    local path="" is_relative=""
+    # Load profignore entries then remove from tmp to avoid copying into chrome dirs
+    local ignored_profiles=()
+    if [[ -f "$tmp/profignore" ]]; then
+        while IFS= read -r ignore_line || [[ -n "$ignore_line" ]]; do
+            ignore_line="${ignore_line%%$'\r'}"
+            [[ -z "$ignore_line" || "$ignore_line" =~ ^# ]] && continue
+            ignored_profiles+=("$ignore_line")
+        done < "$tmp/profignore"
+        rm -f "$tmp/profignore"
+    fi
+
+    local name="" path="" is_relative=""
     while IFS= read -r line || [[ -n "$line" ]]; do
         line="${line%%$'\r'}"
 
-        if [[ "$line" =~ ^\[Profile ]]; then
+        if [[ "$line" =~ ^\[Profile ]] || [[ "$line" =~ ^\[ ]]; then
             if [[ -n "$path" ]]; then
+                local resolved
                 if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$mozCfg/$path")
+                    resolved="$mozCfg/$path"
                 else
-                    profiles+=("$path")
+                    resolved="$path"
                 fi
+                profiles+=("$name|$path|$resolved")
             fi
+            name=""
             path=""
             is_relative=""
-        elif [[ "$line" =~ ^\[ ]]; then
-            if [[ -n "$path" ]]; then
-                if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$mozCfg/$path")
-                else
-                    profiles+=("$path")
-                fi
-            fi
-            path=""
-            is_relative=""
+        elif [[ "$line" =~ ^Name= ]]; then
+            name="${line#Name=}"
         elif [[ "$line" =~ ^Path= ]]; then
             path="${line#Path=}"
         elif [[ "$line" =~ ^IsRelative= ]]; then
@@ -104,14 +110,36 @@ sync_mozilla() {
 
     # Capture the last profile
     if [[ -n "$path" ]]; then
+        local resolved
         if [[ "$is_relative" == "1" ]]; then
-            profiles+=("$mozCfg/$path")
+            resolved="$mozCfg/$path"
         else
-            profiles+=("$path")
+            resolved="$path"
         fi
+        profiles+=("$name|$path|$resolved")
     fi
 
-    for profile in "${profiles[@]}"; do
+    # Track which profignore entries matched
+    local matched_ignores=()
+
+    for entry in "${profiles[@]}"; do
+        local prof_name="${entry%%|*}"
+        local rest="${entry#*|}"
+        local raw_path="${rest%%|*}"
+        local profile="${rest#*|}"
+
+        # Check profignore
+        local ignored=false
+        for ignore_entry in "${ignored_profiles[@]}"; do
+            if [[ "$ignore_entry" == "$prof_name" || "$ignore_entry" == "$raw_path" || "$ignore_entry" == "$profile" ]]; then
+                echo "Skipping $browser profile '$prof_name' (ignored by profignore)"
+                ignored=true
+                matched_ignores+=("$ignore_entry")
+                break
+            fi
+        done
+        [[ "$ignored" == true ]] && continue
+
         if [[ ! -d "$profile" ]]; then
             echo "Profile directory $profile not found, skipping..."
             continue
@@ -141,6 +169,20 @@ sync_mozilla() {
         cp -af "$tmp"/. "$profile/chrome/"
 
         echo "Synced $browser theme to $profile"
+    done
+
+    # Warn about unmatched profignore entries
+    for ignore_entry in "${ignored_profiles[@]}"; do
+        local was_matched=false
+        for m in "${matched_ignores[@]}"; do
+            if [[ "$m" == "$ignore_entry" ]]; then
+                was_matched=true
+                break
+            fi
+        done
+        if [[ "$was_matched" == false ]]; then
+            echo "Warning: profignore entry '$ignore_entry' did not match any $browser profile in $mozCfg"
+        fi
     done
 }
 
@@ -198,6 +240,8 @@ replace_vars() {
             elif [[ "$name" == "waterfox" ]]; then
                 sync_mozilla "$tmp" "$raw_dest" "$name"
             elif [[ "$name" == "librewolf" ]]; then
+                sync_mozilla "$tmp" "$raw_dest" "$name"
+            elif [[ "$name" == "zen-browser" ]]; then
                 sync_mozilla "$tmp" "$raw_dest" "$name"
             else
                 cp -af "$tmp"/. "$dest/"
