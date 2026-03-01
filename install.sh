@@ -30,6 +30,18 @@ grep -qxF "omarchy-theme-sync" "$OMARCHY_HOOKS_DIR/theme-set" || \
 
 # Copy colors and config files
 cp ./colors/* "$SYNC_DIR/"
+
+# Preserve user profignore files
+declare -A saved_profignores
+for pf in "$SYNC_DIR"/*/profignore; do
+    [[ -f "$pf" ]] && saved_profignores["$pf"]="$(cat "$pf")"
+done
+
 cp -r ./config/* "$SYNC_DIR/"
+
+# Restore preserved profignore files
+for pf in "${!saved_profignores[@]}"; do
+    echo "${saved_profignores[$pf]}" > "$pf"
+done
 
 echo "Installation complete!"
