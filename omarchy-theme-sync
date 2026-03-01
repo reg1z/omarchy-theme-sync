@@ -159,11 +159,7 @@ replace_vars() {
         
         # Apply templates to every line-delimited path in "dir"
         for (( i = 1; i <= numlines; i++ )); do
-            echo -e "$i"
             line=$(sed -n ""$i"p" "$sub/dir")
-            echo -e "$line"
-
-            #path=$(tr -d '\r\n' < "$sub/dir")
             raw_dest="${line//\~/$HOME}"
 
             if [[ -z "$raw_dest" ]]; then
@@ -173,7 +169,7 @@ replace_vars() {
 
             dest=$(eval echo "$raw_dest")
             if [[ ! -d "$dest" ]]; then
-                echo "$dest not found skipping"
+                echo -e "\n$dest not found skipping"
                 continue
             fi
 
@@ -183,7 +179,7 @@ replace_vars() {
             cp -a "$sub"/. "$tmp/"
             rm -f "$tmp/dir"
 
-            echo "replacing $sub to $dest"
+            echo -e "\nreplacing $sub to $dest"
             # Extract placeholders and replace
             grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u | while read -r var; do
                 value=$(grep -E "^$var\s*=" "$COLORS_FILE" \
@@ -215,3 +211,5 @@ replace_vars() {
 echo "Theme change detected. Syncing..."
 load_colors
 replace_vars 
+
+echo -e "\nSynchronization Complete."
