@@ -5,9 +5,6 @@ CONFIG_DIR="$HOME/.config"
 THEME_DIR="$CONFIG_DIR/omarchy/current"
 SYNC_DIR="$CONFIG_DIR/omarchy-theme-sync"
 THEME_STORE="$HOME/.local/share/omarchy/themes"
-FFOX_CFG="$HOME/.mozilla/firefox"
-WFOX_CFG="$HOME/.waterfox"
-WOLF_CFG="$HOME/.config/librewolf/librewolf"
 
 COLORS_FILE=""
 
@@ -63,12 +60,14 @@ ensure_user_pref() {
     fi
 }
 
-sync_firefox() {
+sync_mozilla() {
     local tmp="$1"
+    local mozCfg="$2"
+    local browser="$3"
     local profiles=()
 
-    if [[ ! -f "$FFOX_CFG/profiles.ini" ]]; then
-        echo "Firefox profiles.ini not found, skipping..."
+    if [[ ! -f "$mozCfg/profiles.ini" ]]; then
+        echo "$browser profiles.ini not found, skipping..."
         return
     fi
 
@@ -79,7 +78,7 @@ sync_firefox() {
         if [[ "$line" =~ ^\[Profile ]]; then
             if [[ -n "$path" ]]; then
                 if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$FFOX_CFG/$path")
+                    profiles+=("$mozCfg/$path")
                 else
                     profiles+=("$path")
                 fi
@@ -89,7 +88,7 @@ sync_firefox() {
         elif [[ "$line" =~ ^\[ ]]; then
             if [[ -n "$path" ]]; then
                 if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$FFOX_CFG/$path")
+                    profiles+=("$mozCfg/$path")
                 else
                     profiles+=("$path")
                 fi
@@ -101,12 +100,12 @@ sync_firefox() {
         elif [[ "$line" =~ ^IsRelative= ]]; then
             is_relative="${line#IsRelative=}"
         fi
-    done < "$FFOX_CFG/profiles.ini"
+    done < "$mozCfg/profiles.ini"
 
     # Capture the last profile
     if [[ -n "$path" ]]; then
         if [[ "$is_relative" == "1" ]]; then
-            profiles+=("$FFOX_CFG/$path")
+            profiles+=("$mozCfg/$path")
         else
             profiles+=("$path")
         fi
@@ -141,174 +140,9 @@ sync_firefox() {
         mkdir -p "$profile/chrome"
         cp -af "$tmp"/. "$profile/chrome/"
 
-        echo "Synced firefox theme to $profile"
+        echo "Synced $browser theme to $profile"
     done
 }
-
-sync_waterfox() {
-    local tmp="$1"
-    local profiles=()
-
-    if [[ ! -f "$WFOX_CFG/profiles.ini" ]]; then
-        echo "Waterfox profiles.ini not found, skipping..."
-        return
-    fi
-
-    local path="" is_relative=""
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        line="${line%%$'\r'}"
-
-        if [[ "$line" =~ ^\[Profile ]]; then
-            if [[ -n "$path" ]]; then
-                if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$WFOX_CFG/$path")
-                else
-                    profiles+=("$path")
-                fi
-            fi
-            path=""
-            is_relative=""
-        elif [[ "$line" =~ ^\[ ]]; then
-            if [[ -n "$path" ]]; then
-                if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$WFOX_CFG/$path")
-                else
-                    profiles+=("$path")
-                fi
-            fi
-            path=""
-            is_relative=""
-        elif [[ "$line" =~ ^Path= ]]; then
-            path="${line#Path=}"
-        elif [[ "$line" =~ ^IsRelative= ]]; then
-            is_relative="${line#IsRelative=}"
-        fi
-    done < "$WFOX_CFG/profiles.ini"
-
-    # Capture the last profile
-    if [[ -n "$path" ]]; then
-        if [[ "$is_relative" == "1" ]]; then
-            profiles+=("$WFOX_CFG/$path")
-        else
-            profiles+=("$path")
-        fi
-    fi
-
-    for profile in "${profiles[@]}"; do
-        if [[ ! -d "$profile" ]]; then
-            echo "Profile directory $profile not found, skipping..."
-            continue
-        fi
-
-        # Detect active theme via extensions.json and reset if non-default
-        if [[ -f "$profile/extensions.json" ]]; then
-            active_theme=$(jq -r '.addons[] | select(.type == "theme" and .active == true) | .id' "$profile/extensions.json" 2>/dev/null || echo "")
-
-            if [[ -n "$active_theme" && "$active_theme" != "default-theme@mozilla.org" ]]; then
-                echo "Non-default theme detected ($active_theme) in $profile, resetting to default..."
-                jq '
-                    (.addons[] | select(.type == "theme" and .active == true)) |= (.active = false | .userDisabled = true) |
-                    (.addons[] | select(.type == "theme" and .id == "default-theme@mozilla.org")) |= (.active = true | .userDisabled = false)
-                ' "$profile/extensions.json" > "$profile/extensions.json.tmp" \
-                    && mv "$profile/extensions.json.tmp" "$profile/extensions.json"
-            fi
-        fi
-
-        # Ensure required prefs in user.js
-        ensure_user_pref "$profile" "toolkit.legacyUserProfileCustomizations.stylesheets" "true"
-        ensure_user_pref "$profile" "extensions.activeThemeID" '"default-theme@mozilla.org"'
-        ensure_user_pref "$profile" "layout.css.prefers-color-scheme.content-override" "2"
-
-        # Ensure chrome directory exists and copy processed files
-        mkdir -p "$profile/chrome"
-        cp -af "$tmp"/. "$profile/chrome/"
-
-        echo "Synced waterfox theme to $profile"
-    done
-}
-
-sync_librewolf() {
-    local tmp="$1"
-    local profiles=()
-
-    if [[ ! -f "$WOLF_CFG/profiles.ini" ]]; then
-        echo "librewolf profiles.ini not found, skipping..."
-        return
-    fi
-
-    local path="" is_relative=""
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        line="${line%%$'\r'}"
-
-        if [[ "$line" =~ ^\[Profile ]]; then
-            if [[ -n "$path" ]]; then
-                if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$WOLF_CFG/$path")
-                else
-                    profiles+=("$path")
-                fi
-            fi
-            path=""
-            is_relative=""
-        elif [[ "$line" =~ ^\[ ]]; then
-            if [[ -n "$path" ]]; then
-                if [[ "$is_relative" == "1" ]]; then
-                    profiles+=("$WOLF_CFG/$path")
-                else
-                    profiles+=("$path")
-                fi
-            fi
-            path=""
-            is_relative=""
-        elif [[ "$line" =~ ^Path= ]]; then
-            path="${line#Path=}"
-        elif [[ "$line" =~ ^IsRelative= ]]; then
-            is_relative="${line#IsRelative=}"
-        fi
-    done < "$WOLF_CFG/profiles.ini"
-
-    # Capture the last profile
-    if [[ -n "$path" ]]; then
-        if [[ "$is_relative" == "1" ]]; then
-            profiles+=("$WOLF_CFG/$path")
-        else
-            profiles+=("$path")
-        fi
-    fi
-
-    for profile in "${profiles[@]}"; do
-        if [[ ! -d "$profile" ]]; then
-            echo "Profile directory $profile not found, skipping..."
-            continue
-        fi
-
-        # Detect active theme via extensions.json and reset if non-default
-        if [[ -f "$profile/extensions.json" ]]; then
-            active_theme=$(jq -r '.addons[] | select(.type == "theme" and .active == true) | .id' "$profile/extensions.json" 2>/dev/null || echo "")
-
-            if [[ -n "$active_theme" && "$active_theme" != "default-theme@mozilla.org" ]]; then
-                echo "Non-default theme detected ($active_theme) in $profile, resetting to default..."
-                jq '
-                    (.addons[] | select(.type == "theme" and .active == true)) |= (.active = false | .userDisabled = true) |
-                    (.addons[] | select(.type == "theme" and .id == "default-theme@mozilla.org")) |= (.active = true | .userDisabled = false)
-                ' "$profile/extensions.json" > "$profile/extensions.json.tmp" \
-                    && mv "$profile/extensions.json.tmp" "$profile/extensions.json"
-            fi
-        fi
-
-        # Ensure required prefs in user.js
-        ensure_user_pref "$profile" "toolkit.legacyUserProfileCustomizations.stylesheets" "true"
-        ensure_user_pref "$profile" "extensions.activeThemeID" '"default-theme@mozilla.org"'
-        ensure_user_pref "$profile" "layout.css.prefers-color-scheme.content-override" "2"
-
-        # Ensure chrome directory exists and copy processed files
-        mkdir -p "$profile/chrome"
-        cp -af "$tmp"/. "$profile/chrome/"
-
-        echo "Synced librewolf theme to $profile"
-    done
-}
-
 
 
 replace_vars() {
@@ -320,48 +154,61 @@ replace_vars() {
             continue
         fi
 
-        raw_dest=$(tr -d '\r\n' < "$sub/dir")
+        # Add multi-line parsing here
+        numlines=$(wc -l < "$sub/dir")
+        
+        # Apply templates to every line-delimited path in "dir"
+        for (( i = 1; i <= numlines; i++ )); do
+            echo -e "$i"
+            line=$(sed -n ""$i"p" "$sub/dir")
+            echo -e "$line"
 
-        if [[ -z "$raw_dest" ]]; then
-            echo "Empty dir file in $sub, skipping..."
-            continue
-        fi
+            #path=$(tr -d '\r\n' < "$sub/dir")
+            raw_dest="${line//\~/$HOME}"
 
-        dest=$(eval echo "$raw_dest")
-        if [[ ! -d "$dest" ]]; then
-            echo "$dest not found skipping"
-            continue
-        fi
-
-        tmp=$(mktemp -d)
-
-        # Copy config templates (exclude dir)
-        cp -a "$sub"/. "$tmp/"
-        rm -f "$tmp/dir"
-
-        echo "replacing $sub to $dest"
-        # Extract placeholders and replace
-        grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u | while read -r var; do
-            value=$(grep -E "^$var\s*=" "$COLORS_FILE" \
-                | cut -d'=' -f2- \
-                | tr -d ' "')
-
-            if [[ -n "$value" ]]; then
-                find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
+            if [[ -z "$raw_dest" ]]; then
+                echo "Empty dir file in $sub, skipping..."
+                continue
             fi
+
+            dest=$(eval echo "$raw_dest")
+            if [[ ! -d "$dest" ]]; then
+                echo "$dest not found skipping"
+                continue
+            fi
+
+            tmp=$(mktemp -d)
+
+            # Copy config templates (exclude dir)
+            cp -a "$sub"/. "$tmp/"
+            rm -f "$tmp/dir"
+
+            echo "replacing $sub to $dest"
+            # Extract placeholders and replace
+            grep -rhoP '\$\{\K[^}]+' "$tmp" | sort -u | while read -r var; do
+                value=$(grep -E "^$var\s*=" "$COLORS_FILE" \
+                    | cut -d'=' -f2- \
+                    | tr -d ' "')
+
+                if [[ -n "$value" ]]; then
+                    find "$tmp" -type f -exec sed -i "s|\${$var}|$value|g" {} +
+                fi
+            done
+
+            name="$(basename "$sub")"
+            # Copy into destination
+            if [[ "$name" == "firefox" ]]; then
+                sync_mozilla "$tmp" "$raw_dest" "$name"
+            elif [[ "$name" == "waterfox" ]]; then
+                sync_mozilla "$tmp" "$raw_dest" "$name"
+            elif [[ "$name" == "librewolf" ]]; then
+                sync_mozilla "$tmp" "$raw_dest" "$name"
+            else
+                cp -af "$tmp"/. "$dest/"
+            fi
+            rm -rf "$tmp"
         done
 
-        # Copy into destination
-        if [[ "$(basename "$sub")" == "firefox" ]]; then
-            sync_firefox "$tmp"
-        elif [[ "$(basename "$sub")" == "waterfox" ]]; then
-            sync_waterfox "$tmp"
-        elif [[ "$(basename "$sub")" == "librewolf" ]]; then
-            sync_librewolf "$tmp"
-        else
-            cp -af "$tmp"/. "$dest/"
-        fi
-        rm -rf "$tmp"
     done
 }
 
