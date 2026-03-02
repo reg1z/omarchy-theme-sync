@@ -23,19 +23,19 @@
 }
 
 #PersonalToolbar .bookmark-item:hover {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
   -moz-appearance: none !important;
 }
 
 #PersonalToolbar .bookmark-item[container="true"]:hover {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
   -moz-appearance: none !important;
 }
 
 #PersonalToolbar .bookmark-item[open="true"] {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
   -moz-appearance: none !important;
 }
@@ -44,7 +44,7 @@ menupopup {
   -moz-appearance: none !important;
   background-color: ${background} !important;
   --panel-background: ${background} !important;
-  --panel-border-color: ${accent} !important;
+  --panel-border-color: ${color4} !important;
   --panel-border-radius: 4px !important;
 }
 
@@ -63,8 +63,8 @@ menupopup {
 
 /* Active tab */
 .tabbrowser-tab[selected="true"] .tab-background {
-  background-color: ${accent} !important;
-  color: ${accent} !important;
+  background-color: ${color4} !important;
+  color: ${color4} !important;
 }
 
 .tabbrowser-tab[selected="true"] .tab-text{
@@ -72,7 +72,7 @@ menupopup {
 }
 
 .tabbrowser-tab[selected="true"]:hover .tab-background {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
@@ -82,7 +82,7 @@ menupopup {
 
 /* Inactive tabs on hover */
 .tabbrowser-tab:hover .tab-background {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
 }
 
 .tabbrowser-tab:hover {
@@ -102,28 +102,48 @@ menupopup {
 }
 
 .titlebar-close .toolbarbutton-icon {
-  background-color: ${color1} !important;
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+}
+.titlebar-close:hover .toolbarbutton-icon {
+  background-color: ${color4} !important;
+  color: ${selection_foreground} !important;
 }
 
 /**** Toolbar buttons - hover colors ****/
 toolbarbutton:hover .toolbarbutton-icon {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
 toolbarbutton[aria-pressed="true"] .toolbarbutton-icon {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
 toolbarbutton:hover .toolbarbutton-badge-stack {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
 toolbarbutton[open="true"] .toolbarbutton-badge-stack {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
+}
+
+#sidebar-button[checked="true"]:not(:hover) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+#sidebar-button[checked="true"]:not(:hover) .toolbarbutton-badge-stack {
+  background-color: ${color4} !important;
+}
+
+#sidebar-button[checked="true"]:not(:hover) .toolbarbutton-icon {
+  color: ${selection_foreground} !important;
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 /*********************** URL bar ************************/
@@ -159,8 +179,15 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 #urlbar[breakout] .urlbar-background,
 #urlbar[breakout][breakout-extend] .urlbar-background {
   background-color: ${background} !important;
-  border-color: ${accent} !important;
   color: ${foreground} !important;
+  border-color: ${color4} !important;
+  border-width: 1px !important;
+}
+
+
+#urlbar[breakout][breakout-extend] .urlbar-background {
+  /* or try a negative value to extend it */
+  bottom: -2px !important;
 }
 
 /* URL bar suggestions */
@@ -197,13 +224,13 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 
 /* Selected/highlighted row */
 .urlbarView-row[selected] {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
 /* Hovered row */
 .urlbarView-row:hover {
-  background-color: ${accent} !important;
+  background-color: ${color4} !important;
   color: ${selection_foreground} !important;
 }
 
@@ -215,12 +242,12 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 
 /* URL text in a row */
 .urlbarView-url {
-  color: ${color8} !important;
+  color: ${selection_foreground} !important;
 }
 
 /* The action text (e.g. "Search with Google") */
 .urlbarView-row .urlbarView-action {
-  color: ${color7} !important;
+  color: ${selection_foreground} !important;
 }
 
 }
@@ -230,7 +257,7 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 .urlbarView-row:hover .urlbarView-title,
 .urlbarView-row[selected] .urlbarView-secondary,
 .urlbarView-row:hover .urlbarView-secondary {
-  background-color: ${accent} !important;
+  background-color: ${selection_background} !important;
   color: ${selection_foreground} !important;
 }
 
@@ -248,3 +275,39 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 .searchmode-switcher {
   background-color: ${background} !important;
 }
+
+/* Sidebar */
+.buttons-wrapper {
+  background-color: ${background} !important;
+}
+
+#sidebar-tools-and-extensions-splitter {
+  background-color: ${background} !important;
+  margin-inline: 0px !important;
+  margin-block-end: 0px !important;
+  min-height: 0px !important;
+}
+
+#sidebar-button[checked="true"] {
+  background-color: ${background} !important;
+}
+
+#tabbrowser-arrowscrollbox[orient="vertical"] #tabs-newtab-button:hover {
+  background-color: ${color4} !important;
+  color: ${selection_foreground} !important;
+}
+
+#sidebar-launcher-splitter {
+  background-color: ${color4} !important;
+  min-width: 1px !important;
+  max-width: 1px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-width: 0 !important;
+  opacity: 0.1 !important;
+}
+
+/* #sidebar-button:hover { */
+/*   background-color: ${color4} !important; */
+/*   color: ${selection_foreground} !important; */
+/* } */
