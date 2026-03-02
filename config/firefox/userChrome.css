@@ -242,7 +242,7 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
 
 /* URL text in a row */
 .urlbarView-url {
-  color: ${selection_foreground} !important;
+  color: inherit !important;
 }
 
 /* The action text (e.g. "Search with Google") */
