@@ -307,7 +307,13 @@ toolbarbutton[open="true"] .toolbarbutton-badge-stack {
   opacity: 0.1 !important;
 }
 
-/* #sidebar-button:hover { */
-/*   background-color: ${color4} !important; */
-/*   color: ${selection_foreground} !important; */
-/* } */
+/*** Private Browsing Mode ***/
+
+.private-browsing-indicator-with-label {
+  background-color: ${background} !important;
+  color: ${foreground} !important;
+  margin-inline: 0 !important;
+  padding-left: 7px !important;
+  padding-right: 7px !important;
+}
+
